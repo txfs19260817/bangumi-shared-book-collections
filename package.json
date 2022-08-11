@@ -1,11 +1,9 @@
 {
-  "name": "webpack-userscript-template",
-  "description": "Build your UserScript with webpack",
-  "version": "0.0.0",
-  "author": {
-    "name": "Trim21",
-    "email": "trim21me@gmail.com"
-  },
+  "name": "bangumi-shared-book-collections",
+  "description": "共读 @ Bangumi. Ref: https://tinyurl.com/yuem3x36",
+  "version": "1.0.0",
+  "author": "txfs19260817",
+  "license": "WTFPL",
   "scripts": {
     "postversion": "git push --follow-tags",
     "analize": "npm_config_report=true npm run build",
@@ -14,14 +12,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Trim21/webpack-userscript-template"
+    "url": "https://github.com/txfs19260817/bangumi-shared-book-collections"
   },
   "private": true,
   "dependencies": {
-    "@trim21/gm-fetch": "^0.0.3",
-    "axios": "^0.27.2",
-    "axios-userscript-adapter": "^0.2.0",
-    "jquery": "^3.6.0"
+    "@trim21/gm-fetch": "^0.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
