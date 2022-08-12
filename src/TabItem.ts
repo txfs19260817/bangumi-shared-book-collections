@@ -14,6 +14,7 @@ export class TabItem {
 
   constructor() {
     // initialize
+    this.a.id = "tab_bsbc";
     this.applyState(this.states.loading);
     this.li.appendChild(this.a);
 

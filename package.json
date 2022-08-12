@@ -1,7 +1,7 @@
 {
   "name": "bangumi-shared-book-collections",
   "description": "共读 @ Bangumi. Ref: https://tinyurl.com/yuem3x36",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "txfs19260817",
   "license": "WTFPL",
   "scripts": {
