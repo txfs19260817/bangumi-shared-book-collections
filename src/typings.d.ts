@@ -6,6 +6,7 @@ interface Comment {
   subjectCover: string,
   userUrl: string,
   username: string,
+  userAvatarElement: HTMLAnchorElement | HTMLSpanElement,
   comment: string,
   date: Date,
 }
