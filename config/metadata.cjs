@@ -14,9 +14,5 @@ module.exports = {
     'http*://*.chii.in/'
   ],
   require: [],
-  grant: [
-    'GM.xmlHttpRequest'
-  ],
   connect: [],
-  'run-at': 'document-end'
 }
