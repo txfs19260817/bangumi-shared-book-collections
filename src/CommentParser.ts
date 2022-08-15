@@ -31,7 +31,14 @@ export class CommentParser {
     const firstPage = await fetchHTMLDocument(readCollectionURL);
 
     // Get the total page number, yet limit it to MAX_PAGES
-    const maxPageNum = Math.min(this.MAX_PAGES, firstPage.getElementsByClassName('page_inner')[0].childElementCount - 1);
+    const maxPageNum = Math.min(
+      this.MAX_PAGES,
+      Math.max(...Array.from(
+        document.getElementsByClassName('page_inner')[0].childNodes) // get paginator elements
+        .filter((e) => e instanceof HTMLAnchorElement && e.href.length > 0) // keep anchors w/ href
+        .map((e: HTMLAnchorElement) => +(e.href.match(/[0-9]+$/)[0] || 1) // parse page numbers
+        )) // get the maximum of the array
+    );
 
     // Get DOMs by URLs
     const readCollectionURLs = Array.from({ length: maxPageNum }, (_, i) => i + 1).map((i) => `${readCollectionURL}?page=${i}`); // [1, ..., maxPageNum]
@@ -79,6 +86,7 @@ export class CommentParser {
           username: userAnchor.text,
           date: parseTimestamp(c.getElementsByTagName('small')[0].textContent.slice(2)),
           comment: c.getElementsByTagName('p')[0].textContent,
+          stars: c.getElementsByClassName("starlight")[0]?.classList.value.match(/\d+/)?.[0] ?? 0,
         } as Comment
       }).filter((c) => (!c.userUrl.includes(this.uid))); // exclude users themselves
     });
@@ -128,6 +136,14 @@ export class CommentParser {
       const quoteQ = document.createElement("q");
       quoteQ.textContent = d.comment;
       quoteDiv.appendChild(quoteQ);
+      if (d.stars > 0) {
+        const starSpan = document.createElement("span");
+        starSpan.classList.add("starstop-s");
+        const starlightSpan = document.createElement("span");
+        starlightSpan.classList.add("starlight", `stars${d.stars}`);
+        starSpan.appendChild(starlightSpan);
+        collectInfo.appendChild(starSpan);
+      }
       collectInfo.appendChild(quoteDiv);
       info.appendChild(collectInfo);
       // info - date

@@ -8,5 +8,6 @@ interface Comment {
   username: string,
   userAvatarElement: HTMLAnchorElement | HTMLSpanElement,
   comment: string,
+  stars: number,
   date: Date,
 }
