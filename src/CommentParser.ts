@@ -4,9 +4,9 @@ export class CommentParser {
   uid: string
   MAX_PAGES: number;
   MAX_RESULTS: number;
-  constructor() {
-    this.MAX_PAGES = 5;
-    this.MAX_RESULTS = 100;
+  constructor(max_pages: number = 5, max_results: number = 100) {
+    this.MAX_PAGES = max_pages;
+    this.MAX_RESULTS = max_results;
     this.uid = CommentParser.getUID();
   }
 

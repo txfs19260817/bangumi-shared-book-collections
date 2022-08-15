@@ -22,4 +22,11 @@ const fetchHTMLDocument = (url: RequestInfo | URL, fetchMethod = "GET") => {
   });
 };
 
-export { parseTimestamp, fetchHTMLDocument }
+function htmlToElement<T extends HTMLElement>(html: string): T {
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild as T;
+}
+
+export { parseTimestamp, fetchHTMLDocument, htmlToElement }
