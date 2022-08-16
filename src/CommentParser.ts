@@ -4,9 +4,13 @@ export class CommentParser {
   uid: string
   MAX_PAGES: number;
   MAX_RESULTS: number;
-  constructor(max_pages: number = 5, max_results: number = 100) {
+  SHOW_STARS: boolean = true;
+  WATCHLIST: string[] = [];
+  constructor(max_pages: number = 5, max_results: number = 100, show_stars: boolean = true, watchlist: string[] = []) {
     this.MAX_PAGES = max_pages;
     this.MAX_RESULTS = max_results;
+    this.SHOW_STARS = show_stars;
+    this.WATCHLIST = watchlist;
     this.uid = CommentParser.getUID();
   }
 
@@ -21,6 +25,16 @@ export class CommentParser {
     avatar.classList.add("avatar");
     avatar.appendChild(userAvatarAnchor);
     return avatar;
+  }
+
+  sids2subjects = async (sids: string[]): Promise<Subject[]> => {
+    const DOMs = await Promise.all(sids.map((s) => fetchHTMLDocument(`${location.origin}/subject/${s}/comments`)));
+
+    return DOMs.map((d, i) => ({
+      url: `${location.origin}/subject/${sids[i]}/comments`,
+      title: d.querySelector<HTMLAnchorElement>("#headerSubject > h1 > a").text,
+      cover: d.querySelector<HTMLImageElement>("#subject_inner_info > a > img").src,
+    }));
   }
 
   fetchComments = async () => {
@@ -47,7 +61,7 @@ export class CommentParser {
     pages.unshift(firstPage); // all DOMs here
 
     // Get all subject URLs from the list, along with title and cover attributes
-    const subjects = pages.flatMap(
+    const subjects: Subject[] = pages.flatMap(
       (page) => Array.from(page.getElementById("browserItemList").children)
         .map((c) => ({
           url: (c.firstElementChild as HTMLAnchorElement).href + "/comments",
@@ -55,6 +69,11 @@ export class CommentParser {
           cover: c.getElementsByTagName('img')[0].src,
         }))
     );
+
+    // fetch watchlist subjects which are not shown in what we've already obtained
+    const sidSet = new Set<string>(subjects.map((s) => s.url.slice(0, -9).match(/\d+$/)[0]));
+    const filteredWatchlist = this.WATCHLIST.map((i) => i.trim()).filter((i) => !sidSet.has(i));
+    subjects.push(...await this.sids2subjects(filteredWatchlist));
 
     // Get DOMs by URLs
     const commentPageDOMs = await Promise.all(subjects.map((s) => fetchHTMLDocument(s.url)));
@@ -136,7 +155,7 @@ export class CommentParser {
       const quoteQ = document.createElement("q");
       quoteQ.textContent = d.comment;
       quoteDiv.appendChild(quoteQ);
-      if (d.stars > 0) {
+      if (this.SHOW_STARS && d.stars > 0) {
         const starSpan = document.createElement("span");
         starSpan.classList.add("starstop-s");
         const starlightSpan = document.createElement("span");

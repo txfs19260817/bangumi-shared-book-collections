@@ -11,3 +11,9 @@ interface Comment {
   stars: number,
   date: Date,
 }
+
+interface Subject {
+  url: string,
+  title: string,
+  cover: string,
+}
