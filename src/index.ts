@@ -3,7 +3,6 @@ import { createSettingsDialog } from "./Dialog";
 import { TabItem } from "./TabItem";
 
 async function main() {
-  console.log(GM_getValue("watchlist"))
   createSettingsDialog();
   const tabItem = new TabItem();
   const cp = new CommentParser(GM_getValue("maxpages"), GM_getValue("maxresults"), GM_getValue("showstars"), GM_getValue("watchlist"));
@@ -22,5 +21,5 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.log(e)
+  console.error(e);
 })

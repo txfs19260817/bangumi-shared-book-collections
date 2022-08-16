@@ -42,7 +42,6 @@ export const createSettingsDialog = () => {
         v = v === "true";
       }
       GM_setValue(k, v);
-      console.log(GM_getValue(k));
     });
     dialog.close();
   });
