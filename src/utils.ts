@@ -23,7 +23,7 @@ const fetchHTMLDocument = (url: RequestInfo | URL, fetchMethod = "GET") => {
 };
 
 function htmlToElement<T extends HTMLElement>(html: string): T {
-  var template = document.createElement('template');
+  const template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
   return template.content.firstChild as T;
