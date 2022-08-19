@@ -5,6 +5,8 @@ type TabState = {
 
 export class TabItem {
 
+  DISABLE_SETTINGS: boolean;
+
   private states = {
     loading: { text: "⏳", cursor: "wait" },
     done: { text: "共读", cursor: "pointer" },
@@ -12,7 +14,8 @@ export class TabItem {
   li: HTMLLIElement = document.createElement("li");
   a: HTMLAnchorElement = document.createElement("a");
 
-  constructor() {
+  constructor(disable_settings: boolean = false) {
+    this.DISABLE_SETTINGS = disable_settings;
     // initialize
     this.a.id = "tab_bsbc";
     this.applyState(this.states.loading);
@@ -50,7 +53,9 @@ export class TabItem {
       a.classList.add("focus");
       document.getElementById("timeline").replaceChildren(...nodes);
     };
-    // add settings button
-    document.getElementById('timelineTabs').appendChild(this.settingAnchor());
+    if (!this.DISABLE_SETTINGS) {
+      // add settings button
+      document.getElementById('timelineTabs').appendChild(this.settingAnchor());
+    }
   }
 }
