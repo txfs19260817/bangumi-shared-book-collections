@@ -1,4 +1,4 @@
-import { fetchHTMLDocument, parseTimestamp } from "./utils";
+import {fetchHTMLDocument, parseTimestamp} from "./utils";
 
 export class CommentParser {
   uid: string
@@ -6,6 +6,7 @@ export class CommentParser {
   MAX_RESULTS: number;
   SHOW_STARS: boolean = true;
   WATCHLIST: string[] = [];
+
   constructor(max_pages: number = 5, max_results: number = 100, show_stars: boolean = true, watchlist: string[] = []) {
     this.MAX_PAGES = max_pages;
     this.MAX_RESULTS = max_results;
@@ -55,7 +56,7 @@ export class CommentParser {
     );
 
     // Get DOMs by URLs
-    const readCollectionURLs = Array.from({ length: maxPageNum }, (_, i) => i + 1).map((i) => `${readCollectionURL}?page=${i}`); // [1, ..., maxPageNum]
+    const readCollectionURLs = Array.from({length: maxPageNum}, (_, i) => i + 1).map((i) => `${readCollectionURL}?page=${i}`); // [1, ..., maxPageNum]
     readCollectionURLs.shift(); // [2, ..., maxPageNum]
     const pages = await Promise.all(readCollectionURLs.map((u) => fetchHTMLDocument(u)));
     pages.unshift(firstPage); // all DOMs here
@@ -76,41 +77,37 @@ export class CommentParser {
     subjects.push(...await this.sids2subjects(filteredWatchlist));
 
     // Get DOMs by URLs
-    const commentPageDOMs = await Promise.all(subjects.map((s) => fetchHTMLDocument(s.url)));
+    const commentPageDOMs = (await Promise.all(subjects.map((s) => fetchHTMLDocument(s.url))))
+      .map((d) => d.getElementById("comment_box") as HTMLDivElement);
 
-    // Extract comment elements
-    const commentElements = commentPageDOMs.map((p) => Array.from(p.getElementsByClassName("text")));
-    // build an UID to Avatar element Map
-    const avatarElements: HTMLAnchorElement[] = commentPageDOMs.flatMap((p) => Array.from(p.querySelectorAll('#comment_box > div > .avatar')));
-    const uid2avatar = new Map<string, HTMLAnchorElement>();
-    avatarElements.forEach((e) => {
-      // adjust avatar span class
-      e.firstElementChild.classList.replace("rr", "ll");
-      e.firstElementChild.classList.replace("avatarSize32", "avatarReSize40");
-      (e.firstElementChild as HTMLSpanElement).style.marginLeft = '6px';
-      // parse username from href
-      const username = e.href.split('/').at(-1);
-      uid2avatar.set(username, e);
+    // Extract comment elements: comment class="text" ; avatar class="avatar"
+    const commentElementLists = commentPageDOMs.map((p) => Array.from(p.getElementsByClassName("text")));
+    const avatarElementLists = commentPageDOMs.map((p) => Array.from(p.getElementsByClassName("avatar") as HTMLCollectionOf<HTMLAnchorElement>));
+    avatarElementLists.forEach((avatarElements, i) => {
+      avatarElements.forEach((e, j) => {
+        if (e.firstElementChild instanceof HTMLSpanElement) {
+          // adjust avatar span class
+          e.firstElementChild.classList.replace("rr", "ll");
+          e.firstElementChild.classList.replace("avatarSize32", "avatarReSize40");
+          e.firstElementChild.style.marginLeft = '6px';
+        }
+      });
     });
-
-    const data = commentElements.flatMap((cs, i) => {
-      return cs.map((c) => {
-        const userAnchor = c.firstElementChild as HTMLAnchorElement;
-        return {
+    const outputComments = commentElementLists.flatMap((commentElements, i) =>
+      commentElements.map((c, j) =>
+        ({
           subjectUrl: subjects[i].url,
           subjectTitle: subjects[i].title,
           subjectCover: subjects[i].cover,
-          userAvatarElement: uid2avatar.get(userAnchor.href.split('/').at(-1)) ?? this.defaultAvatarElem(userAnchor.href),
-          userUrl: userAnchor.href,
-          username: userAnchor.text,
+          userAvatarElement: avatarElementLists[i][j],
+          userUrl: avatarElementLists[i][j].href,
+          username: avatarElementLists[i][j].text,
           date: parseTimestamp(c.getElementsByTagName('small')[0].textContent.slice(2)),
           comment: c.getElementsByTagName('p')[0].textContent,
           stars: c.getElementsByClassName("starlight")[0]?.classList.value.match(/\d+/)?.[0] ?? 0,
-        } as Comment
-      }).filter((c) => (!c.userUrl.includes(this.uid))); // exclude users themselves
-    });
-    data.sort((a, b) => (+b.date) - (+a.date));
-    return data.slice(0, this.MAX_RESULTS);
+        } as Comment)).filter((c) => (!c.userUrl.includes(this.uid))) // exclude the current user
+    );
+    return outputComments.sort((a, b) => (+b.date) - (+a.date)).slice(0, this.MAX_RESULTS);
   }
 
   commentDataToTLList = (data: Comment[]) => {
@@ -174,7 +171,9 @@ export class CommentParser {
       li.appendChild(info);
       return li
     });
-    lis.forEach((l) => { ul.appendChild(l) });
+    lis.forEach((l) => {
+      ul.appendChild(l)
+    });
     return ul;
   }
 
