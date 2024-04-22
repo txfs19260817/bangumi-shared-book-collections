@@ -1,6 +1,6 @@
 declare module '*.less';
 
-interface Comment {
+interface BgmComment {
   subjectUrl: string,
   subjectTitle: string,
   subjectCover: string,
