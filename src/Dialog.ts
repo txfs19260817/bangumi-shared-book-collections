@@ -1,39 +1,48 @@
-import { htmlToElement } from "./utils";
+import { htmlToElement, t } from "./utils";
 
 export const createSettingsDialog = () => {
   const dialog = htmlToElement<HTMLDialogElement>(`
   <dialog id="dialog">
     <form id="dialog-form" method="dialog">
-      <h2>共读设置</h2>
-      <h3>提交后请刷新以生效改动</h3>
+      <h2>${t('settings_title')}</h2>
+      <h3>${t('settings_subtitle')}</h3>
       <div>
-        <label for="maxpages">获取最近读过的前多少页条目的评论：</label>
+        <label for="maxpages">${t('max_pages_label')}</label>
         <input id="maxpages" name="maxpages" type="number" value="${GM_getValue("maxpages") || cp.MAX_PAGES}" min="1" />
       </div>
       <div>
-        <label for="maxresults">最多显示评论的数目：</label>
+        <label for="maxresults">${t('max_results_label')}</label>
         <input id="maxresults" name="maxresults" type="number" value="${GM_getValue("maxresults") || cp.MAX_RESULTS}" min="1" />
       </div>
       <div>
-        <label for="showstars">显示评分：</label>
+        <label for="showstars">${t('show_stars_label')}</label>
         <input type="hidden" name="showstars" value="false" />
         <input id="showstars" name="showstars" type="checkbox" value="true" ${GM_getValue("showstars") ? "checked" : ""} />
       </div>
       <div>
-        <label for="disablesettings">不在首页显示设置按钮：</label>
+        <label for="language">${t('language_label')}</label>
+        <select id="language" name="language">
+          <option value="" ${!GM_getValue("language") ? "selected" : ""}>${t('language_auto')}</option>
+          <option value="zh" ${GM_getValue("language") === "zh" ? "selected" : ""}>${t('language_zh')}</option>
+          <option value="en" ${GM_getValue("language") === "en" ? "selected" : ""}>${t('language_en')}</option>
+          <option value="ja" ${GM_getValue("language") === "ja" ? "selected" : ""}>${t('language_ja')}</option>
+        </select>
+      </div>
+      <div>
+        <label for="disablesettings">${t('disable_settings_label')}</label>
         <input type="hidden" name="disablesettings" value="false" />
         <input id="disablesettings" name="disablesettings" type="checkbox" value="true" ${GM_getValue("disablesettings") ? "checked" : ""} />
-        <p style="color: gray;">（控制设置按钮在首页的可见性，选中后仍可在Tampermonkey类插件中设置）</p>
+        <p style="color: gray;">${t('disable_settings_help')}</p>
       </div>
       <div>
-        <label for="watchlist">关注列表（每行一个条目数字id，列表中的条目的最新评论一定会被收集）：</label>
+        <label for="watchlist">${t('watchlist_label')}</label>
         <br />
-        <textarea id="watchlist" name="watchlist" class="quick" rows="6" cols="10" placeholder="例:\n326125\n329803">${GM_getValue("watchlist").map((s) => s.trim()).join("\n")}</textarea>
+        <textarea id="watchlist" name="watchlist" class="quick" rows="6" cols="10" placeholder="${t('watchlist_placeholder')}">${GM_getValue("watchlist").map((s: string) => s.trim()).join("\n")}</textarea>
       </div>
       <div>
-        <button type="submit">Submit</button>
-        <button type="reset">Reset</button>
-        <button type="button" onclick="document.getElementById('dialog').close()">Close</button>
+        <button type="submit">${t('submit_button')}</button>
+        <button type="reset">${t('reset_button')}</button>
+        <button type="button" onclick="document.getElementById('dialog').close()">${t('close_button')}</button>
       </div>
     </form>
   </dialog>`);
@@ -47,6 +56,8 @@ export const createSettingsDialog = () => {
         v = (kv[1] as string).split("\n").filter((n) => Number.isInteger(Number(n)) && Number(n) > 0);
       } else if (k === "showstars" || k === "disablesettings") {
         v = v === "true";
+      } else if (k === "language") {
+        v = v === "" ? null : v; // Store null for auto-detect
       }
       GM_setValue(k, v);
     });
@@ -62,7 +73,7 @@ export const createSettingsDialog = () => {
   document.body.appendChild(dialog);
 
   // userscript menu
-  GM_registerMenuCommand("设置", () => {
+  GM_registerMenuCommand(t('settings_menu'), () => {
     dialog.showModal();
   });
 }

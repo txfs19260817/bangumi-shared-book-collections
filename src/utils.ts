@@ -29,4 +29,144 @@ function htmlToElement<T extends HTMLElement>(html: string): T {
   return template.content.firstChild as T;
 }
 
-export { parseTimestamp, fetchHTMLDocument, htmlToElement }
+// Internationalization support
+interface Translations {
+  [key: string]: {
+    zh: string;
+    en: string;
+    ja: string;
+  };
+}
+
+const translations: Translations = {
+  // Dialog strings
+  'settings_title': {
+    zh: '共读设置',
+    en: 'Shared Book Collection Settings',
+    ja: '共有読書リスト設定'
+  },
+  'settings_subtitle': {
+    zh: '提交后请刷新以应用更改',
+    en: 'Please refresh to apply changes',
+    ja: '変更を適用するには、ページを更新してください'
+  },
+  'max_pages_label': {
+    zh: '扫描最近读过条目的页数：',
+    en: 'Number of pages to scan for recently read items:',
+    ja: '最近読んだアイテムをスキャンするページ数：'
+  },
+  'max_results_label': {
+    zh: '最多显示评论数：',
+    en: 'Maximum number of comments to display:',
+    ja: '表示するコメントの最大数：'
+  },
+  'show_stars_label': {
+    zh: '显示评分：',
+    en: 'Show ratings:',
+    ja: '評価を表示：'
+  },
+  'disable_settings_label': {
+    zh: '在首页隐藏设置按钮：',
+    en: 'Hide settings button on the homepage:',
+    ja: 'ホームページで設定ボタンを非表示にする：'
+  },
+  'disable_settings_help': {
+    zh: '（隐藏首页的设置按钮。之后你仍可以在油猴扩展菜单中进行设置。）',
+    en: '(Hides the settings button on the homepage. You can still access settings from the Tampermonkey extension menu.)',
+    ja: '（ホームページの設定ボタンを非表示にします。設定はTampermonkey拡張機能メニューから引き続きアクセスできます。）'
+  },
+  'watchlist_label': {
+    zh: '关注列表（每行一个条目ID，列表内条目的最新评论总会被获取）：',
+    en: 'Watchlist (one item ID per line; the latest comments for items in this list will always be fetched):',
+    ja: 'ウォッチリスト（1行に1アイテムID。このリスト内のアイテムの最新コメントは常に取得されます）：'
+  },
+  'watchlist_placeholder': {
+    zh: '例如:\n326125\n329803',
+    en: 'Example:\n326125\n329803',
+    ja: '例：\n326125\n329803'
+  },
+  'submit_button': {
+    zh: '提交',
+    en: 'Submit',
+    ja: '送信'
+  },
+  'reset_button': {
+    zh: '重置',
+    en: 'Reset',
+    ja: 'リセット'
+  },
+  'close_button': {
+    zh: '关闭',
+    en: 'Close',
+    ja: '閉じる'
+  },
+  'settings_menu': {
+    zh: '设置',
+    en: 'Settings',
+    ja: '設定'
+  },
+  // TabItem strings
+  'shared_reading': {
+    zh: '共读',
+    en: 'Shared Reading',
+    ja: '共読'
+  },
+  'settings_gear': {
+    zh: '⚙️设置',
+    en: '⚙️Settings',
+    ja: '⚙️設定'
+  },
+  // CommentParser strings
+  'read_past_tense': {
+    zh: ' 读过 ',
+    en: ' read ',
+    ja: ' が読みました '
+  },
+  // Language selection
+  'language_label': {
+    zh: '语言：',
+    en: 'Language:',
+    ja: '言語：'
+  },
+  'language_auto': {
+    zh: '自动检测',
+    en: 'Auto-detect',
+    ja: '自動検出'
+  },
+  'language_zh': {
+    zh: '中文',
+    en: 'Chinese',
+    ja: '中国語'
+  },
+  'language_en': {
+    zh: '英文',
+    en: 'English',
+    ja: '英語'
+  },
+  'language_ja': {
+    zh: '日文',
+    en: 'Japanese',
+    ja: '日本語'
+  }
+};
+
+// Language detection and getter
+function getLanguage(): 'zh' | 'en' | 'ja' {
+  const stored = GM_getValue('language');
+  if (stored && ['zh', 'en', 'ja'].includes(stored)) {
+    return stored as 'zh' | 'en' | 'ja';
+  }
+
+  // Auto-detect from browser language
+  const browserLang = navigator.language.toLowerCase();
+  if (browserLang.startsWith('zh')) return 'zh';
+  if (browserLang.startsWith('ja')) return 'ja';
+  return 'en'; // Default to English
+}
+
+function t(key: string): string {
+  const lang = getLanguage();
+  return translations[key]?.[lang] || translations[key]?.['en'] || key;
+}
+
+export { parseTimestamp, fetchHTMLDocument, htmlToElement, t, getLanguage }

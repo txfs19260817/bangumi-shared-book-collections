@@ -17,3 +17,11 @@ interface Subject {
   title: string,
   cover: string,
 }
+
+// Global variables that are available in the context
+declare var cp: any;
+
+// Greasemonkey API declarations
+declare function GM_getValue(key: string, defaultValue?: any): any;
+declare function GM_setValue(key: string, value: any): void;
+declare function GM_registerMenuCommand(caption: string, commandFunc: () => void, accessKey?: string): void;

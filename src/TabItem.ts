@@ -1,61 +1,102 @@
+import { t } from "./utils";
+
+/**
+ * Represents the state of the tab, including its display text and cursor style.
+ */
 type TabState = {
   text: string;
   cursor: string;
 }
 
+/**
+ * Manages the "Shared Reading" tab in the timeline interface.
+ * This class handles the creation, state management (loading, done),
+ * and interactions of the tab.
+ */
 export class TabItem {
 
+  /** Determines whether the settings button is disabled. */
   DISABLE_SETTINGS: boolean;
 
+  /** Defines the possible states of the tab. */
   private states = {
     loading: { text: "⏳", cursor: "wait" },
-    done: { text: "共读", cursor: "pointer" },
+    done: { text: t('shared_reading'), cursor: "pointer" },
   }
+  /** The list item element for the tab. */
   li: HTMLLIElement = document.createElement("li");
+  /** The anchor element within the tab. */
   a: HTMLAnchorElement = document.createElement("a");
 
+  /**
+   * Initializes a new instance of the TabItem class.
+   * @param disable_settings - If true, the settings button will not be displayed.
+   */
   constructor(disable_settings: boolean = false) {
     this.DISABLE_SETTINGS = disable_settings;
-    // initialize
+
+    // Initialize tab elements
     this.a.id = "tab_bsbc";
     this.applyState(this.states.loading);
     this.li.appendChild(this.a);
 
-    document.getElementById('timelineTabs').appendChild(this.li);
+    // Add the tab to the timeline tabs list
+    document.getElementById('timelineTabs')?.appendChild(this.li);
   }
 
-  private settingAnchor() {
+  /**
+   * Creates the settings gear anchor element and its parent list item.
+   * @returns The list item element containing the settings anchor.
+   */
+  private createSettingsLink(): HTMLLIElement {
     const a = document.createElement("a");
-    a.text = "⚙️设置";
+    a.textContent = t('settings_gear');
     a.style.cursor = "pointer";
-    a.onclick = function () {
-      (document.getElementById("dialog") as HTMLDialogElement).showModal();
+    a.onclick = () => {
+      const dialog = document.getElementById("dialog") as HTMLDialogElement | null;
+      dialog?.showModal();
     }
     const li = document.createElement("li");
     li.appendChild(a);
     return li;
   }
 
-  private applyState(state: TabState) {
-    this.a.text = state.text;
+  /**
+   * Applies a given state to the tab's anchor element.
+   * @param state - The state to apply.
+   */
+  private applyState(state: TabState): void {
+    this.a.textContent = state.text;
     this.a.style.cursor = state.cursor;
   }
 
-  loaded(...nodes: (Node | string)[]) {
+  /**
+   * Finalizes the tab's setup once content has loaded.
+   * It sets the tab to the "done" state and attaches click handlers.
+   * @param nodes - The DOM nodes to display when the tab is clicked.
+   */
+  public onLoaded(...nodes: (Node | string)[]): void {
     this.applyState(this.states.done);
-    // add onclick handler
-    const a = this.a;
-    this.a.onclick = function () {
-      if (a.classList.contains("focus")) return;
+
+    // Add onclick handler to switch tabs and display content
+    this.a.onclick = () => {
+      if (this.a.classList.contains("focus")) return;
+
+      // De-select other tabs
       ["tab_all", "tab_say", "tab_subject", "tab_progress", "tab_blog"].forEach((id) => {
-        document.getElementById(id).classList.remove("focus");
+        document.getElementById(id)?.classList.remove("focus");
       });
-      a.classList.add("focus");
-      document.getElementById("timeline").replaceChildren(...nodes);
+
+      // Select this tab
+      this.a.classList.add("focus");
+
+      // Display the new content
+      document.getElementById("timeline")?.replaceChildren(...nodes);
     };
+
     if (!this.DISABLE_SETTINGS) {
-      // add settings button
-      document.getElementById('timelineTabs').appendChild(this.settingAnchor());
+      // Add settings button to the tab list
+      document.getElementById('timelineTabs')?.appendChild(this.createSettingsLink());
     }
   }
 }
