@@ -14,10 +14,6 @@ module.exports = {
     'http*://*.chii.in/'
   ],
   require: [],
-  grant: [
-    'GM_registerMenuCommand',
-    'GM_getValue',
-    'GM_setValue',
-  ],
+  grant: [],
   connect: [],
 }
