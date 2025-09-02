@@ -225,6 +225,10 @@ export class CommentParser {
     // Main Info Container
     const infoSpan = document.createElement('span');
     infoSpan.className = 'info clearit';
+    infoSpan.style.display = 'flex';
+    infoSpan.style.alignItems = 'center';
+    infoSpan.style.flexWrap = 'wrap';
+    infoSpan.style.columnGap = '4px';
 
     // Username and Action Text
     const userAnchor = document.createElement('a');
@@ -245,17 +249,20 @@ export class CommentParser {
     // Comment and Stars
     const collectInfoDiv = document.createElement('div');
     collectInfoDiv.className = 'collectInfo';
+    collectInfoDiv.style.flexBasis = '100%';
     const commentDiv = document.createElement('div');
     commentDiv.className = 'comment';
     commentDiv.textContent = comment.comment;
+    commentDiv.style.flexBasis = '100%';
 
     if (this.SHOW_STARS && comment.stars > 0) {
       const starsSpan = document.createElement('span');
       starsSpan.className = 'starstop-s';
+      starsSpan.style.margin = '0 4px';
       const starlightSpan = document.createElement('span');
       starlightSpan.className = `starlight stars${comment.stars}`;
       starsSpan.appendChild(starlightSpan);
-      commentDiv.appendChild(starsSpan);
+      infoSpan.appendChild(starsSpan);
     }
     collectInfoDiv.appendChild(commentDiv);
     infoSpan.appendChild(collectInfoDiv);
@@ -264,6 +271,7 @@ export class CommentParser {
     const dateDiv = document.createElement('div');
     dateDiv.className = 'post_actions date';
     dateDiv.textContent = comment.date.toLocaleString();
+    dateDiv.style.flexBasis = '100%';
     infoSpan.appendChild(dateDiv);
 
     li.appendChild(infoSpan);
