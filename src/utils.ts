@@ -1,3 +1,87 @@
+/**
+ * Storage utility module that replaces GM_getValue and GM_setValue with localStorage
+ * All data is stored under a single namespace to avoid conflicts
+ */
+
+const STORAGE_PREFIX = 'bangumi_shared_book_';
+
+/**
+ * Gets a value from localStorage
+ * @param key - The key to retrieve
+ * @param defaultValue - The default value to return if key doesn't exist
+ * @returns The stored value or defaultValue
+ */
+export function getValue(key: string, defaultValue?: any): any {
+  try {
+    const fullKey = STORAGE_PREFIX + key;
+    const stored = localStorage.getItem(fullKey);
+
+    if (stored === null) {
+      return defaultValue;
+    }
+
+    // Try to parse as JSON, fallback to raw string if parsing fails
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return stored;
+    }
+  } catch (error) {
+    console.error(`Error reading from localStorage for key ${key}:`, error);
+    return defaultValue;
+  }
+}
+
+/**
+ * Sets a value in localStorage
+ * @param key - The key to store under
+ * @param value - The value to store
+ */
+export function setValue(key: string, value: any): void {
+  try {
+    const fullKey = STORAGE_PREFIX + key;
+
+    // Convert value to JSON string for consistent storage
+    const valueToStore = typeof value === 'string' ? value : JSON.stringify(value);
+    localStorage.setItem(fullKey, valueToStore);
+  } catch (error) {
+    console.error(`Error writing to localStorage for key ${key}:`, error);
+  }
+}
+
+/**
+ * Removes a value from localStorage
+ * @param key - The key to remove
+ */
+export function removeValue(key: string): void {
+  try {
+    const fullKey = STORAGE_PREFIX + key;
+    localStorage.removeItem(fullKey);
+  } catch (error) {
+    console.error(`Error removing from localStorage for key ${key}:`, error);
+  }
+}
+
+/**
+ * Clears all values with our storage prefix
+ */
+export function clearAllValues(): void {
+  try {
+    const keysToRemove: string[] = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(STORAGE_PREFIX)) {
+        keysToRemove.push(key);
+      }
+    }
+
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  } catch (error) {
+    console.error('Error clearing localStorage:', error);
+  }
+}
+
 const parseTimestamp = (s: string) => {
   if (!s.includes("ago")) {
     return new Date(s);
@@ -152,7 +236,7 @@ const translations: Translations = {
 
 // Language detection and getter
 function getLanguage(): 'zh' | 'en' | 'ja' {
-  const stored = GM_getValue('language');
+  const stored = getValue('language');
   if (stored && ['zh', 'en', 'ja'].includes(stored)) {
     return stored as 'zh' | 'en' | 'ja';
   }

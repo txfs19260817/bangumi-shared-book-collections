@@ -1,6 +1,6 @@
-import { htmlToElement, t } from "./utils";
+import { htmlToElement, t, getValue, setValue } from "./utils";
 
-export const createSettingsDialog = () => {
+export const createSettingsDialog = (cp: { MAX_PAGES: number; MAX_RESULTS: number }) => {
   const dialog = htmlToElement<HTMLDialogElement>(`
   <dialog id="dialog">
     <form id="dialog-form" method="dialog">
@@ -8,36 +8,36 @@ export const createSettingsDialog = () => {
       <h3>${t('settings_subtitle')}</h3>
       <div>
         <label for="maxpages">${t('max_pages_label')}</label>
-        <input id="maxpages" name="maxpages" type="number" value="${GM_getValue("maxpages") || cp.MAX_PAGES}" min="1" />
+        <input id="maxpages" name="maxpages" type="number" value="${getValue("maxpages") || cp.MAX_PAGES}" min="1" />
       </div>
       <div>
         <label for="maxresults">${t('max_results_label')}</label>
-        <input id="maxresults" name="maxresults" type="number" value="${GM_getValue("maxresults") || cp.MAX_RESULTS}" min="1" />
+        <input id="maxresults" name="maxresults" type="number" value="${getValue("maxresults") || cp.MAX_RESULTS}" min="1" />
       </div>
       <div>
         <label for="showstars">${t('show_stars_label')}</label>
         <input type="hidden" name="showstars" value="false" />
-        <input id="showstars" name="showstars" type="checkbox" value="true" ${GM_getValue("showstars") ? "checked" : ""} />
+        <input id="showstars" name="showstars" type="checkbox" value="true" ${getValue("showstars") ? "checked" : ""} />
       </div>
       <div>
         <label for="language">${t('language_label')}</label>
         <select id="language" name="language">
-          <option value="" ${!GM_getValue("language") ? "selected" : ""}>${t('language_auto')}</option>
-          <option value="zh" ${GM_getValue("language") === "zh" ? "selected" : ""}>${t('language_zh')}</option>
-          <option value="en" ${GM_getValue("language") === "en" ? "selected" : ""}>${t('language_en')}</option>
-          <option value="ja" ${GM_getValue("language") === "ja" ? "selected" : ""}>${t('language_ja')}</option>
+          <option value="" ${!getValue("language") ? "selected" : ""}>${t('language_auto')}</option>
+          <option value="zh" ${getValue("language") === "zh" ? "selected" : ""}>${t('language_zh')}</option>
+          <option value="en" ${getValue("language") === "en" ? "selected" : ""}>${t('language_en')}</option>
+          <option value="ja" ${getValue("language") === "ja" ? "selected" : ""}>${t('language_ja')}</option>
         </select>
       </div>
       <div>
         <label for="disablesettings">${t('disable_settings_label')}</label>
         <input type="hidden" name="disablesettings" value="false" />
-        <input id="disablesettings" name="disablesettings" type="checkbox" value="true" ${GM_getValue("disablesettings") ? "checked" : ""} />
+        <input id="disablesettings" name="disablesettings" type="checkbox" value="true" ${getValue("disablesettings") ? "checked" : ""} />
         <p style="color: gray;">${t('disable_settings_help')}</p>
       </div>
       <div>
         <label for="watchlist">${t('watchlist_label')}</label>
         <br />
-        <textarea id="watchlist" name="watchlist" class="quick" rows="6" cols="10" placeholder="${t('watchlist_placeholder')}">${GM_getValue("watchlist").map((s: string) => s.trim()).join("\n")}</textarea>
+        <textarea id="watchlist" name="watchlist" class="quick" rows="6" cols="10" placeholder="${t('watchlist_placeholder')}">${(getValue("watchlist") || []).map((s: string) => s.trim()).join("\n")}</textarea>
       </div>
       <div>
         <button type="submit">${t('submit_button')}</button>
@@ -59,7 +59,7 @@ export const createSettingsDialog = () => {
       } else if (k === "language") {
         v = v === "" ? null : v; // Store null for auto-detect
       }
-      GM_setValue(k, v);
+      setValue(k, v);
     });
     dialog.close();
   });
@@ -72,8 +72,6 @@ export const createSettingsDialog = () => {
   // inject dialog element
   document.body.appendChild(dialog);
 
-  // userscript menu
-  GM_registerMenuCommand(t('settings_menu'), () => {
-    dialog.showModal();
-  });
+  // Return the dialog so it can be opened from elsewhere
+  return dialog;
 }

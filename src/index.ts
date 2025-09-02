@@ -1,25 +1,26 @@
 import { CommentParser } from "./CommentParser";
 import { createSettingsDialog } from "./Dialog";
 import { TabItem } from "./TabItem";
+import { getValue } from "./utils";
 
 /**
  * The main execution flow of the script.
  */
 async function run() {
   // Initialize the tab item, checking for the 'disablesettings' configuration.
-  const tabItem = new TabItem(!!GM_getValue("disablesettings"));
+  const tabItem = new TabItem(!!getValue("disablesettings"));
 
   // Create a CommentParser instance with user-defined settings.
   const cp = new CommentParser(
-    GM_getValue("maxpages"),
-    GM_getValue("maxresults"),
-    !!GM_getValue("showstars"),
-    GM_getValue("watchlist")
+    getValue("maxpages"),
+    getValue("maxresults"),
+    !!getValue("showstars"),
+    getValue("watchlist")
   );
 
   // Fetch comments and then update the UI.
   const comments = await cp.fetchComments();
-  createSettingsDialog();
+  createSettingsDialog(cp);
   tabItem.onLoaded(cp.commentDataToTLList(comments));
 }
 
