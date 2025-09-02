@@ -29,12 +29,6 @@ export const createSettingsDialog = (cp: { MAX_PAGES: number; MAX_RESULTS: numbe
         </select>
       </div>
       <div>
-        <label for="disablesettings">${t('disable_settings_label')}</label>
-        <input type="hidden" name="disablesettings" value="false" />
-        <input id="disablesettings" name="disablesettings" type="checkbox" value="true" ${getValue("disablesettings") ? "checked" : ""} />
-        <p style="color: gray;">${t('disable_settings_help')}</p>
-      </div>
-      <div>
         <label for="watchlist">${t('watchlist_label')}</label>
         <br />
         <textarea id="watchlist" name="watchlist" class="quick" rows="6" cols="10" placeholder="${t('watchlist_placeholder')}">${(getValue("watchlist") || []).map((s: string) => s.trim()).join("\n")}</textarea>
@@ -54,7 +48,7 @@ export const createSettingsDialog = (cp: { MAX_PAGES: number; MAX_RESULTS: numbe
       let v: any = kv[1];
       if (k === "watchlist") {
         v = (kv[1] as string).split("\n").filter((n) => Number.isInteger(Number(n)) && Number(n) > 0);
-      } else if (k === "showstars" || k === "disablesettings") {
+      } else if (k === "showstars") {
         v = v === "true";
       } else if (k === "language") {
         v = v === "" ? null : v; // Store null for auto-detect

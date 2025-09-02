@@ -7,8 +7,8 @@ import { getValue } from "./utils";
  * The main execution flow of the script.
  */
 async function run() {
-  // Initialize the tab item, checking for the 'disablesettings' configuration.
-  const tabItem = new TabItem(!!getValue("disablesettings"));
+  // Initialize the tab item
+  const tabItem = new TabItem();
 
   // Create a CommentParser instance with user-defined settings.
   const cp = new CommentParser(

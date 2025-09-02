@@ -15,9 +15,6 @@ type TabState = {
  */
 export class TabItem {
 
-  /** Determines whether the settings button is disabled. */
-  DISABLE_SETTINGS: boolean;
-
   /** Defines the possible states of the tab. */
   private states = {
     loading: { text: "⏳", cursor: "wait" },
@@ -30,11 +27,8 @@ export class TabItem {
 
   /**
    * Initializes a new instance of the TabItem class.
-   * @param disable_settings - If true, the settings button will not be displayed.
    */
-  constructor(disable_settings: boolean = false) {
-    this.DISABLE_SETTINGS = disable_settings;
-
+  constructor() {
     // Initialize tab elements
     this.a.id = "tab_bsbc";
     this.applyState(this.states.loading);
@@ -94,9 +88,7 @@ export class TabItem {
       document.getElementById("timeline")?.replaceChildren(...nodes);
     };
 
-    if (!this.DISABLE_SETTINGS) {
-      // Add settings button to the tab list
-      document.getElementById('timelineTabs')?.appendChild(this.createSettingsLink());
-    }
+    // Add settings button to the tab list
+    document.getElementById('timelineTabs')?.appendChild(this.createSettingsLink());
   }
 }
