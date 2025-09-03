@@ -145,7 +145,7 @@ export class CommentParser {
       return {
         subjectCover: subject.cover,
         subjectTitle: subject.title,
-        subjectUrl: subject.url,
+        subjectUrl: subject.url.replace(/\/[^\/]*$/, ''),
         userAvatarElement: this.createAvatarElement(avatarElement.style.backgroundImage, userUrl),
         userUrl,
         username,

@@ -82,19 +82,28 @@ export function clearAllValues(): void {
   }
 }
 
-const parseTimestamp = (s: string) => {
+const parseTimestamp = (s: string): Date => {
   if (!s.includes("ago")) {
-    return new Date(s);
+    let d = new Date(s);
+    if (isNaN(d.getTime())) {
+      // try parsing "2023-3-31 15:19"
+      const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+      if (m) {
+        const [, y, mo, da, h, mi, se] = m.map(Number);
+        d = new Date(y, mo - 1, da, h, mi, se || 0);
+      }
+    }
+    return d;
   }
+
+  // handle "ago" format
   const now = new Date();
-  const d = s.match(/(\d+)d/i)?.[1] || "0";
-  const h = s.match(/(\d+)h/i)?.[1] || "0";
-  const m = s.match(/(\d+)m/i)?.[1] || "0";
-  now.setDate(now.getDate() - (+d));
-  now.setHours(now.getHours() - (+h));
-  now.setMinutes(now.getMinutes() - (+m));
+  const get = (r: RegExp) => +(s.match(r)?.[1] ?? 0);
+  now.setDate(now.getDate() - get(/(\d+)d/i));
+  now.setHours(now.getHours() - get(/(\d+)h/i));
+  now.setMinutes(now.getMinutes() - get(/(\d+)m/i));
   return now;
-}
+};
 
 const fetchHTMLDocument = (url: RequestInfo | URL, fetchMethod = "GET") => {
   return fetch(url, { method: fetchMethod, credentials: "include" }).then(
